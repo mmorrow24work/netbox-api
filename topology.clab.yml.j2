@@ -1,0 +1,32 @@
+name: {{ lab_name }}
+
+topology:
+  nodes:
+{% for device in devices %}
+    {{ device.name }}:
+      kind: {{ device.device_type }}
+      image: {{ device.platform_image }}
+      {% if device.binds %}
+      binds:
+      {% for bind in device.binds %}
+        - {{ bind }}
+      {% endfor %}
+      {% endif %}
+      {% if device.env %}
+      env:
+      {% for key, value in device.env.items() %}
+        {{ key }}: {{ value }}
+      {% endfor %}
+      {% endif %}
+{% endfor %}
+
+  links:
+{% for link in links %}
+    - endpoints: ["{{ link.a_device }}:{{ link.a_iface }}", "{{ link.z_device }}:{{ link.z_iface }}"]
+      {% if link.vars %}
+      vars:
+        {% for key, value in link.vars.items() %}
+        {{ key }}: {{ value }}
+        {% endfor %}
+      {% endif %}
+{% endfor %}
